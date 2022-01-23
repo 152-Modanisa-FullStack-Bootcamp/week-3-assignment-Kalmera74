@@ -20,14 +20,20 @@ describe('Counter.vue', () => {
     };
 
     actions = {
-      increment: jest.fn(),
-      decrement: jest.fn()
+      increment: jest.fn(() => {
+        state.count++;
+      }),
+      decrement: jest.fn(() => {
+        state.count--;
+      })
     }
     store = new Vuex.Store({
-      actions
+      actions,
+      state
 
     });
     wrapper = mount(Counter, { store, localVue });
+
 
   });
 
@@ -56,4 +62,31 @@ describe('Counter.vue', () => {
 
     expect(actions.increment).toHaveBeenCalled();
   });
+
+  it('count decreases', async () => {
+    const buttons = wrapper.findAll('button');
+    const button = buttons.filter(button => button.text().match('Decrease'));
+    button.trigger('click');
+    expect(actions.decrement).toHaveBeenCalled();
+  });
+
+  it('count text show', () => {
+    const count = wrapper.find('span');
+    expect(count.text()).toBe('0k');
+  });
+
+  it('should increase twice and decrease once', async () => {
+
+    wrapper.vm.increase();
+    wrapper.vm.increase();
+    wrapper.vm.decrease();
+
+    await wrapper.vm.$nextTick();
+
+    const count = wrapper.find('span');
+    expect(count.text()).toBe('1k');
+
+
+  });
+
 })
